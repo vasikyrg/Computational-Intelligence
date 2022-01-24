@@ -14,7 +14,7 @@ from keras import backend as K
 from sklearn.metrics import confusion_matrix
 import time
 
-# Σταθερές τιμές εκφώνησης
+
 n_h1 = [64, 128]
 n_h2 = [256, 512]
 l2_val = [l2(0.1), l2(0.001), l2(0.000001)]
@@ -24,7 +24,7 @@ times = []  # Φόρτωση χρόνου
 k = 5  # 5-fold cross val
 
 
-# Χρήση έτοιμων συναρτήσεων που με την νέα ενημέρωση του Keras αφαιρέθηκαν
+
 
 
 def precision_m(y_true, y_pred):
@@ -61,24 +61,22 @@ def f1_m(y_true, y_pred):
     return 2 * ((precision * recall) / (precision + recall + K.epsilon()))
 
 
-# --> Διαχείρηση Δεδομένων
 
-# Κατεβαίνει το dataset της εκφώνησης, εξασφαλίζεται η τυχαιότητα
 (Trnx, Trny), (Tstx, Tsty) = mnist.load_data()
 
-# Μετατροπή συστοιχιών κλάσης 1 διαστάσεων σε πίνακες κλάσης 10 διαστάσεων για την είσοδο
+
 Trny = np_utils.to_categorical(Trny, 10)
 Tsty = np_utils.to_categorical(Tsty, 10)
 
-# Μετατροπή συστοιχιών κλάσης 1 διαστάσεων σε πίνακες κλάσης 10 διαστάσεων για την έξοδο
-Trnx = Trnx / 255.0  # Γενικά παίρνει τιμές από 1 έως 255 όμως εμείς θέλουμε από [0,1]
-Tstx = Tstx / 255.0  # Γενικά παίρνει τιμές από 1 έως 255 όμως εμείς θέλουμε από [0,1]
 
-# Κάνουμε διαχωρισμό με σκοπό να έχουμε το 20% για επικύρωση
+Trnx = Trnx / 255.0  # [0,1]
+Tstx = Tstx / 255.0  # [0,1]
+
+
 Trnx, valx = tf.split(Trnx, [int(48000), int(12000)], 0)
 Trny, valy = tf.split(Trny, [int(48000), int(12000)], 0)
 
-# Ένωση των x και y για να χρησιμοποιηθούν σε μορφή numpy() για την συνάρτηση KFold
+
 x = tf.concat([Trnx, valx], 0).numpy()
 y = tf.concat([Trny, valy], 0).numpy()
 
@@ -104,13 +102,13 @@ for nh1 in range(0, len(n_h1)):
                     fold += 1
                     print(f'Our fold is: '+str(fold)+'/5 for n_h1=' + str(n_h1[nh1]) + ' n_h2=' + str(n_h2[nh2]) +
                           ' a='+str(a_val[a])+' and lr='+str(lr_val[lr]))
-                    # Τυχαία τοποθέτηση αριθμών για την εξαγωγή των train και validation x και y
+                    
                     x_train = x[train]
                     y_train = y[train]
                     x_val = x[test]
                     y_val = y[test]
 
-                    # Δημιουργία του μοντέλου με βάση τις προδιαγραφές της εκφώνησης
+                    
                     model = Sequential()
                     model.add(Flatten(input_shape=(28, 28)))
                     model.add(Dense(n_h1[nh1], activation='relu', kernel_regularizer=l2_val[a],
@@ -140,7 +138,6 @@ for f_value in range(0, len(f_measures_f)):
               ' a='+str(grid[index][2])+' lr='+str(grid[index][3])+'')
     index += 1
 
-# Υλοποίηση optimal μοντέλου
 model = Sequential()
 model.add(Flatten(input_shape=(28, 28)))
 model.add(Dense(128, activation='relu', kernel_regularizer=l2(1e-6),
@@ -155,7 +152,7 @@ model.compile(optimizer=tf.keras.optimizers.RMSprop(learning_rate=0.001),
 history = model.fit(Trnx, Trny, batch_size=256, epochs=1000, validation_data=(valx, valy),
                     callbacks=[EarlyStopping(monitor='val_f1_m', patience=200, mode="max")])
 
-# Διαγράμματα
+
 trn_acc = [history.history['categorical_accuracy'][i] * 100
            for i in range(len(history.history['categorical_accuracy']))]
 val_acc = [history.history['val_categorical_accuracy'][i] * 100
