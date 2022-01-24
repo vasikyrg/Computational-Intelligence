@@ -11,7 +11,7 @@ from sklearn.cluster import KMeans
 import time
 from sklearn.model_selection import KFold
 
-# Χρήσιμος σύνδεσμος από το Github που με βοήθησε https://github.com/PetraVidnerova/rbf_keras
+# Usefull link -> https://github.com/PetraVidnerova/rbf_keras
 
 
 class RBFLayer(layers.Layer):
@@ -80,27 +80,23 @@ prop = [0.2, 0.35, 0.5]
 times = []  # Φόρτωση χρόνου
 k = 5  # 5-fold cross val
 
-# --> Διαχείρηση Δεδομένων 14 attributes (13 + 1 της εκφώνησης)
-# Κατεβαίνει το dataset της εκφώνησης, εξασφαλίζεται η τυχαιότητα
-# Χρησιμοποιώντας αυτό : https://www.kaggle.com/shanekonaung/boston-housing-price-dataset-with-keras
+
 (Trnx, Trny), (Tstx, Tsty) = boston_housing.load_data(test_split=0.25)
 
-# Μετατροπή των Tstx και Trnx με βάση την μέση τιμή και την διασπορά (feature normalization)
+
 Trnx = (Trnx - np.mean(Trnx, axis=0)) / np.std(Trnx, axis=0)
 Tstx = (Tstx - np.mean(Tstx, axis=0)) / np.std(Tstx, axis=0)
 
-' Η διαφορά με πριν είναι ότι πριν είχαμε classification ενώ τώρα έχουμε regression'
-' δηλαδή βγαίνει ένας αριθμός απευθείας'
 
-# Κάνουμε διαχωρισμό με σκοπό να έχουμε το 20% για επικύρωση
+
 Trnx, valx = tf.split(Trnx, [int(Trnx.shape[0]*0.8), Trnx.shape[0] - int(Trnx.shape[0]*0.8)], 0)
 Trny, valy = tf.split(Trny, [int(Trny.shape[0]*0.8), Trny.shape[0] - int(Trny.shape[0]*0.8)], 0)
 
-# Ένωση των x και y για να χρησιμοποιηθούν σε μορφή numpy() για την συνάρτηση KFold
+
 x = tf.concat([Trnx, valx], 0).numpy()
 y = tf.concat([Trny, valy], 0).numpy()
 
-# Ορισμός νευρώνων με βάση την εκφώνηση
+
 neuron_1 = 0.05*Trny.shape[0]
 neuron_2 = 0.15*Trny.shape[0]
 neuron_3 = 0.3*Trny.shape[0]
@@ -133,7 +129,7 @@ for p in range(0, len(prop)):
                 fold += 1
                 print(f'Our fold is: ' + str(fold) + '/5 for prop=' + str(prop[p]) + ', n_h2=' + str(n_h2[nh2]) +
                       ' and its neuron type is '+str(types_of_neurons[n_i-1])+' οf dataset.')
-                # Τυχαία τοποθέτηση αριθμών για την εξαγωγή των train και validation x και y
+                
                 x_train = x[train]
                 y_train = y[train]
                 x_val = x[test]
@@ -164,7 +160,7 @@ for rmse_value in range(0, len(rmse_f)):
               ', probability='+str(grid[index][1])+' for neuron type '+str(grid[index][0])+'.')
     index += 1
 
-# Optimal Μοντέλο
+# Optimal 
 
 model = Sequential()
 model.add(RBFLayer(int(neuron_4), initializer=InitCentersKMeans(Trnx), input_shape=(13, )))
@@ -176,7 +172,8 @@ model.compile(optimizer=tf.keras.optimizers.SGD(learning_rate=0.001), loss=mean_
               metrics=[r2_score, root_mean_squared_error])
 history = model.fit(Trnx, Trny, batch_size=4, epochs=100, validation_data=(valx, valy))
 score = model.evaluate(Tstx, Tsty)
-# Διαγράμματα
+
+
 trn_loss = [history.history['loss'][i] for i in range(100)]
 val_loss = [history.history['val_loss'][i] for i in range(100)]
 
