@@ -9,7 +9,7 @@ from keras import layers
 from keras.initializers import Initializer
 from sklearn.cluster import KMeans
 
-# Χρήσιμος σύνδεσμος από το Github που με βοήθησε https://github.com/PetraVidnerova/rbf_keras
+# Useful link -> https://github.com/PetraVidnerova/rbf_keras
 
 
 class RBFLayer(layers.Layer):
@@ -72,23 +72,21 @@ def r2_score(y_true, y_pred):
     return 1 - SS_res/(SS_tot + K.epsilon())
 
 
-# --> Διαχείρηση Δεδομένων 14 attributes (13 + 1 της εκφώνησης)
-# Κατεβαίνει το dataset της εκφώνησης, εξασφαλίζεται η τυχαιότητα
-# Χρησιμοποιώντας αυτό : https://www.kaggle.com/shanekonaung/boston-housing-price-dataset-with-keras
+
 (Trnx, Trny), (Tstx, Tsty) = boston_housing.load_data(test_split=0.25)
 
-# Μετατροπή των Tstx και Trnx με βάση την μέση τιμή και την διασπορά (feature normalization)
+
 Trnx = (Trnx - np.mean(Trnx, axis=0)) / np.std(Trnx, axis=0)
 Tstx = (Tstx - np.mean(Tstx, axis=0)) / np.std(Tstx, axis=0)
 
 ' Η διαφορά με πριν είναι ότι πριν είχαμε classification ενώ τώρα έχουμε regression'
 ' δηλαδή βγαίνει ένας αριθμός απευθείας'
 
-# Κάνουμε διαχωρισμό με σκοπό να έχουμε το 20% για επικύρωση
+
 Trnx, valx = tf.split(Trnx, [int(Trnx.shape[0]*0.8), Trnx.shape[0] - int(Trnx.shape[0]*0.8)], 0)
 Trny, valy = tf.split(Trny, [int(Trny.shape[0]*0.8), Trny.shape[0] - int(Trny.shape[0]*0.8)], 0)
 
-# Ορισμός νευρώνων με βάση την εκφώνηση
+
 neuron_1 = 0.1*Trny.shape[0]
 neuron_2 = 0.5*Trny.shape[0]
 neuron_3 = 0.9*Trny.shape[0]
@@ -111,7 +109,8 @@ for n in neurons:
     model.compile(optimizer=tf.keras.optimizers.SGD(learning_rate=0.001), loss=mse, metrics=[r2_score, rmse])
     history = model.fit(Trnx, Trny, batch_size=4, epochs=100, validation_data=(valx, valy))
     score = model.evaluate(Tstx, Tsty)
-    # Διαγράμματα
+    
+    
     trn_loss = [history.history['loss'][i] for i in range(100)]
     val_loss = [history.history['val_loss'][i] for i in range(100)]
 
