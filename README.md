@@ -7,5 +7,6 @@ Chapter 2: Solving a regression problem using TSK models
 
 Chapter 3: Solving a classification problem using a Multi-Layer Perception network 
            -> MNIST
+
 Chapter 4: Solving a regression problem using RBF network 
            -> Boston Housing
