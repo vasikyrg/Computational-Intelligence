@@ -1,4 +1,4 @@
-# Computational-Intelligence
+# Computational Intelligence
 Projects in python and MATLAB in Computational Intelligence 
 
 Chapter 1: Speed control of a work table mechanism with fuzzy controllers 
